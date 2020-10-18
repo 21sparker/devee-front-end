@@ -94,13 +94,13 @@ groupings = {
         "columns": {
             "bucket-1": {
                 "id": "bucket-1",
-                "title": "Admin",
-                "taskIds": ["task-1", "task-2", "task-3"]
+                "title": "Feature",
+                "taskIds": ["task-1", "task-2", "task-4"]
             },
             "bucket-2": {
                 "id": "bucket-2",
-                "title": "Project",
-                "taskIds": ["task-4", "task-5"]
+                "title": "Bug Fix",
+                "taskIds": ["task-3", "task-5"]
             }
         },
         "columnOrder": ["bucket-1", "bucket-2"]

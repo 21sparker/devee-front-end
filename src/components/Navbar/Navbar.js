@@ -10,8 +10,8 @@ export default class Navbar extends Component {
 
     render() {
         return (
-
             <nav className="navbar-container">
+                <h3 className="navbar-header">{this.props.project}</h3>
                 <ul className="navbar-items">
                     <li onClick={this.handleClick}>
                         Status

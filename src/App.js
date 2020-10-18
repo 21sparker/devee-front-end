@@ -6,7 +6,8 @@ import Navbar from './components/Navbar/Navbar';
 
 export default class App extends Component {
     state = {
-        currentGrouping: "bucket"
+        currentGrouping: "bucket",
+        currentProject: "Devee",
     }
 
     changeCurrentGrouping = grouping => {
@@ -16,7 +17,9 @@ export default class App extends Component {
     render() {
         return (
             <div className="app-container">
-                <Navbar changeCurrentGrouping={this.changeCurrentGrouping} />
+                <Navbar 
+                    changeCurrentGrouping={this.changeCurrentGrouping}
+                    project={this.state.currentProject} />
                 <KanbanBoard currentGrouping={this.state.currentGrouping}/>
             </div>
         );
