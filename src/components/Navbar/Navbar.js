@@ -4,7 +4,8 @@ import './Navbar.css';
 export default class Navbar extends Component {
     render() {
         return (
-            <div className="navbar-container">
+
+            <nav className="navbar-container">
                 <ul className="navbar-items">
                     <li>
                         Status
@@ -13,7 +14,7 @@ export default class Navbar extends Component {
                         Bucket
                     </li>
                 </ul>
-            </div>
+            </nav>
         )
     }
 }
