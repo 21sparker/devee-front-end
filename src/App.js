@@ -5,11 +5,19 @@ import Navbar from './components/Navbar/Navbar';
 
 
 export default class App extends Component {
+    state = {
+        currentGrouping: "bucket"
+    }
+
+    changeCurrentGrouping = grouping => {
+        this.setState({ currentGrouping: grouping });
+    }
+
     render() {
         return (
             <div className="app-container">
-                <Navbar />
-                <KanbanBoard />
+                <Navbar changeCurrentGrouping={this.changeCurrentGrouping} />
+                <KanbanBoard currentGrouping={this.state.currentGrouping}/>
             </div>
         );
     }

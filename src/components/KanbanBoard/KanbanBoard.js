@@ -14,7 +14,7 @@ class KanbanBoard extends Component {
     state = {
         tasks: {},
         groupings: null,
-        currentGrouping: null,
+        // currentGrouping: this.props.currentGrouping,
 
         currentDialog: null,
         cardDialogTask: null,
@@ -68,7 +68,6 @@ class KanbanBoard extends Component {
             const stateUpdate = {
                 tasks: tasks,
                 groupings: groupings,
-                currentGrouping: "status",
             }
             this.setState(stateUpdate)
 
@@ -78,7 +77,7 @@ class KanbanBoard extends Component {
     onDragEnd = results => {
         const { destination, source, draggableId, type } = results;
 
-        const grouping = this.state.groupings[this.state.currentGrouping];
+        const grouping = this.state.groupings[this.props.currentGrouping];
         const columns = grouping["columns"];
         const columnOrder = grouping["columnOrder"];
 
@@ -188,7 +187,7 @@ class KanbanBoard extends Component {
      * @param {string} colId 
      */
     openCardDialog = (taskId, colId) => {
-        const columns = this.state.groupings[this.state.currentGrouping]["columns"]
+        const columns = this.state.groupings[this.props.currentGrouping]["columns"]
         this.setState({ 
             currentDialog: "EDIT_TASK",
             cardDialogTask: this.state.tasks[taskId],
@@ -228,8 +227,8 @@ class KanbanBoard extends Component {
 
             // Update status columns if the card has changed status
             if (statusChanged) {
-                const grouping = this.state.groupings[this.state.currentGrouping];
-                const statusColumns = this.state.groupings[this.state.currentGrouping].columns;
+                const grouping = this.state.groupings[this.props.currentGrouping];
+                const statusColumns = this.state.groupings[this.props.currentGrouping].columns;
 
                 // Update taskIds order for previous status column
                 const prevColumnTaskIds = Array.from(statusColumns[statusId].taskIds);
@@ -324,7 +323,7 @@ class KanbanBoard extends Component {
      * @param {string} columnId 
      */
     addNewTask = (task, columnId) => {
-        const grouping = this.state.groupings[this.state.currentGrouping];
+        const grouping = this.state.groupings[this.props.currentGrouping];
         const callback = data => {
 
             this.setState({
@@ -354,7 +353,7 @@ class KanbanBoard extends Component {
         // Generate all the column elements relevant for the current grouping
         let columnsList;
         if (this.state.groupings) {
-            const currentGroup = this.state.groupings[this.state.currentGrouping];
+            const currentGroup = this.state.groupings[this.props.currentGrouping];
             columnsList = currentGroup.columnOrder.map((columnId, index) => {
                 const column = currentGroup.columns[columnId];
                 return (
