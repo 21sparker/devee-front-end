@@ -1,6 +1,5 @@
 .navbar-container {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    /* padding: 0 auto; */
     width: 100%;
     display: flex;
     justify-content: center;
@@ -17,5 +16,5 @@
 
 .navbar-items li {
     padding: 0 1rem;
-    /* padding: 0.5rem 1rem; */
+    cursor: pointer;
 }
