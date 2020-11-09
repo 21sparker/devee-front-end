@@ -12,6 +12,7 @@ class CardDialog extends Component {
                             ? convertToInputDateString(props.task.dueDate)
                             : "",
             statusId: props.statusId,
+            bucket: props.bucketId,
             dialogOpen: true,
         };
 
@@ -73,6 +74,13 @@ class CardDialog extends Component {
                                 handleInputChange={this.handleInputChange}
                             />
                         </NameAndInput>
+                        {/* <NameAndInput name="Bucket">
+                            <StatusInput
+                                statusOptions={this.props.bucketOptions}
+                                selectedStatusId={this.state.bucketId}
+                                handleInputChange={this.handleInputChange}
+                            />
+                        </NameAndInput> */}
                     </CardDialogContainer>
                 </DialogContent>
             </DialogOverlay>
@@ -160,6 +168,7 @@ class StatusInput extends Component {
         )
     }
 }
+
 
 function NameAndInput(props){
     return (

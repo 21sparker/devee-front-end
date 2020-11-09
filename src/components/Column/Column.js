@@ -66,8 +66,6 @@ export default class Column extends Component {
     }
 
     handleAddTaskClick = () => {
-        // const columnId = this.props.column.id;
-        // this.props.addEmptyTask(columnId);
         this.setState({
             quickAddCard: true,
         })

@@ -6,7 +6,7 @@ import Navbar from './components/Navbar/Navbar';
 
 export default class App extends Component {
     state = {
-        currentGrouping: "bucket",
+        currentGrouping: "status",
         currentProject: "Devee",
     }
 

@@ -4,7 +4,7 @@ import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import "@reach/dialog/styles.css";
 import { ColumnWrapper } from '../Column/Column';
 import CardDialog from '../CardDialog/CardDialog';
-import { editTask, addTask, editGrouping, editColumn, editAndMoveTask } from '../../taskApi';
+import { tasks, groupings } from '../../data';
 
 // Dialog Library Documentation
 // https://reach.tech/dialog/#dialog-ondismiss
@@ -20,6 +20,8 @@ class KanbanBoard extends Component {
         cardDialogTask: null,
         cardDialogStatusId: null,
         cardDialogStatusOptions: null,
+        cardDialogBucketId: null,
+        cardDialogBucketOptions: null,
 
         proposedChanges: null,
     };
@@ -29,49 +31,18 @@ class KanbanBoard extends Component {
     }
 
     /**
-     * "Cleans" a task object by changing properties to their appropriate types
-     * and adds any additional values needed by the general application.
-     * 
-     * @param {Task obj} task 
-     */
-    cleanTask = task => {
-        task["dueDate"] = task["dueDate"] ? new Date(task["dueDate"]) : null;
-        task["createdDate"] = task["createdDate"] ? new Date(task["createdDate"]) : null;
-        task["isEditable"] = false;
-
-        return task;
-    }
-
-    /**
      * Fetches all the data needed to build the Kanban Board.
      * Fetches all: 
      *      1. Tasks
      *      2. Groupings
      */
     renderMyData() {
-        Promise.all([
-            fetch('/api/tasks'),
-            fetch('/api/groupings')
-        ]).then((responses) => {
-            // Get a JSON object from each of the reponses
-            return Promise.all(responses.map((response) => response.json()));
-        }).then((data) => {
-            console.log("Initial data loaded successfully: ", data);
-
-            // Clean up tasks
-            const tasks = data[0]["tasks"];
-            Object.keys(tasks).forEach(key => {
-                this.cleanTask(tasks[key])
-            })
-
-            const groupings = data[1]["groupings"]
-            const stateUpdate = {
-                tasks: tasks,
-                groupings: groupings,
-            }
-            this.setState(stateUpdate)
-
+        this.setState({
+            tasks: tasks,
+            groupings: groupings,
         })
+
+        
     }
 
     onDragEnd = results => {
@@ -105,8 +76,6 @@ class KanbanBoard extends Component {
                 columnOrder: newColumnOrder,
             }
 
-            editGrouping(newGrouping, () => {})
-
             this.setState({
                 groupings: {
                     ...this.state.groupings,
@@ -130,8 +99,6 @@ class KanbanBoard extends Component {
                 taskIds: newTaskIds,
             };
             
-            editColumn(newColumn, grouping.id, () => {})
-
             this.setState({
                 groupings: {
                     ...this.state.groupings,
@@ -154,7 +121,6 @@ class KanbanBoard extends Component {
             ...start,
             taskIds: startTaskIds,
         }
-        editColumn(newStartColumn, grouping.id, () => {})
 
         const finishTaskIds = Array.from(finish.taskIds);
         finishTaskIds.splice(destination.index, 0, draggableId);
@@ -162,7 +128,6 @@ class KanbanBoard extends Component {
             ...finish,
             taskIds: finishTaskIds,
         };
-        editColumn(newFinishColumn, grouping.id, () => {})
 
         this.setState({
             groupings: {
@@ -246,65 +211,43 @@ class KanbanBoard extends Component {
                     taskIds: nextColumnTaskIds,
                 }
 
-                // Callback to update the state once the api returns a successful task edit and
-                // column change
-                const callback = data => {
-                    const dataTask = data[0].task;
-                    const prevColumn = data[1].column;
-                    const nextColumn = data[2].column;
-    
-                    // TODO: By the time this callback is called, the grouping might have changed,
-                    // so the column changes will fail if they have changed. Need to fix this to 
-                    // capture the grouping along with the column changes
-                    this.setState({
-                        // Hide card dialog
-                        currentDialog: null,
-                        cardDialogTask: null,
-                        proposedChanges: null,
-                        // Update task with changes                
-                        tasks: {
-                            ...this.state.tasks,
-                            [dataTask.id]: this.cleanTask(dataTask),
-                        },
-                        // Update columns
-                        groupings: {
-                            ...this.state.groupings,
-                            [grouping.id]: {
-                                ...grouping,
-                                columns: {
-                                    ...grouping.columns,
-                                    [prevColumn.id]: prevColumn,
-                                    [nextColumn.id]: nextColumn,
-                                }
+                this.setState({
+                    // Hide card dialog
+                    currentDialog: null,
+                    cardDialogTask: null,
+                    proposedChanges: null,
+                    // Update task with changes                
+                    tasks: {
+                        ...this.state.tasks,
+                        [newTask.id]: newTask,
+                    },
+                    // Update columns
+                    groupings: {
+                        ...this.state.groupings,
+                        [grouping.id]: {
+                            ...grouping,
+                            columns: {
+                                ...grouping.columns,
+                                [previousStatusColumn.id]: previousStatusColumn,
+                                [nextStatusColumn.id]: nextStatusColumn,
                             }
-    
                         }
-                    });
-                }
 
-                editAndMoveTask(newTask, 
-                    grouping.id, 
-                    previousStatusColumn, 
-                    nextStatusColumn,
-                    callback)
+                    }
+                });
+
             } else {
-                // Callback to update the state once the api returns a successful task edit
-                const callback = data => {
-                    const dataTask = data.task;
-
-                    this.setState({
-                        // Hide card dialog
-                        currentDialog: null,
-                        cardDialogTask: null,
-                        proposedChanges: null,
-                        // Update task with changes                
-                        tasks: {
-                            ...this.state.tasks,
-                            [dataTask.id]: this.cleanTask(dataTask),
-                        }
-                    });
-                }                
-                editTask(newTask, callback)
+                this.setState({
+                    // Hide card dialog
+                    currentDialog: null,
+                    cardDialogTask: null,
+                    proposedChanges: null,
+                    // Update task with changes                
+                    tasks: {
+                        ...this.state.tasks,
+                        [newTask.id]: newTask,
+                    }
+                });
             }           
         } else {
             this.setState({
@@ -323,30 +266,30 @@ class KanbanBoard extends Component {
      * @param {string} columnId 
      */
     addNewTask = (task, columnId) => {
+        // Add attributes that would typically be added by the backend
+        task.id = "task-" + Object.keys(this.state.tasks).length + 1;
+        task.createdDate = new Date();
+        
         const grouping = this.state.groupings[this.props.currentGrouping];
-        const callback = data => {
-
-            this.setState({
-                tasks: {
-                    ...this.state.tasks,
-                    [data.id]: this.cleanTask(data),
-                },
-                groupings: {
-                    ...this.state.groupings,
-                    [grouping.id]: {
-                        ...grouping,
-                        columns: {
-                            ...grouping.columns,
-                            [columnId]: {
-                                ...grouping.columns[columnId],
-                                taskIds: [data.id].concat(grouping.columns[columnId].taskIds),
-                            }
+        this.setState({
+            tasks: {
+                ...this.state.tasks,
+                [task.id]: task,
+            },
+            groupings: {
+                ...this.state.groupings,
+                [grouping.id]: {
+                    ...grouping,
+                    columns: {
+                        ...grouping.columns,
+                        [columnId]: {
+                            ...grouping.columns[columnId],
+                            taskIds: [task.id].concat(grouping.columns[columnId].taskIds),
                         }
                     }
                 }
-            })
-        }
-        addTask(task, columnId, grouping.id, callback);
+            }
+        })
     }
 
     render() {
@@ -380,7 +323,9 @@ class KanbanBoard extends Component {
                             closeCardDialog={this.closeCardDialog}
                             task={this.state.cardDialogTask}
                             statusId={this.state.cardDialogStatusId}
-                            statusOptions={this.state.cardDialogStatusOptions} />
+                            statusOptions={this.state.cardDialogStatusOptions}
+                            bucketId={this.state.cardDialogBucketId}
+                            bucketOptions={this.state.cardDialogBucketOptions} />
                     )
                 default:
                     return null
@@ -406,8 +351,6 @@ class KanbanBoard extends Component {
         );
     }
 }
-
-
 
 function KanbanBoardContainer(props) {
     const { innerRef, children, ...rest } = props;
