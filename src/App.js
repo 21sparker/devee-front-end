@@ -19,6 +19,7 @@ export default class App extends Component {
             <div className="app-container">
                 <Navbar 
                     changeCurrentGrouping={this.changeCurrentGrouping}
+                    currentGrouping={this.state.currentGrouping}
                     project={this.state.currentProject} />
                 <KanbanBoard currentGrouping={this.state.currentGrouping}/>
             </div>
